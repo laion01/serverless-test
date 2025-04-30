@@ -36,12 +36,12 @@ async def upload(
 
         return f"/tmp/{filename}"
 
-    image_url = save_file(image)
-    video_url = save_file(video)
+    # image_url = save_file(image)
+    # video_url = save_file(video)
 
     print("-------------------------------")
-    print(image_url)
-    print(video_url)
+    # print(image_url)
+    # print(video_url)
     print(description)
 
     return JSONResponse(
