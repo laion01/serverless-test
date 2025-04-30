@@ -15,7 +15,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-UPLOAD_DIR = "public/uploads/media"
+UPLOAD_DIR = "/tmp"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 
@@ -34,10 +34,15 @@ async def upload(
         with open(filepath, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
 
-        return f"/uploads/media/{filename}"
+        return f"/tmp/{filename}"
 
     image_url = save_file(image)
     video_url = save_file(video)
+
+    print("-------------------------------")
+    print(image_url)
+    print(video_url)
+    print(description)
 
     return JSONResponse(
         content={
