@@ -1,15 +1,15 @@
-FROM python:3.10-slim
+FROM runpod/base:0.6.3-cuda11.8.0
 
-# Create app directory
-WORKDIR /app
+# Set python3.11 as the default python
+RUN ln -sf $(which python3.11) /usr/local/bin/python && \
+    ln -sf $(which python3.11) /usr/local/bin/python3
 
 # Install dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY requirements.txt /requirements.txt
+RUN uv pip install --upgrade -r /requirements.txt --no-cache-dir --system
 
-# Copy app code
-COPY . .
+# Add files
+ADD handler.py .
 
-# Expose port and run
-EXPOSE 8000
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Run the handler
+CMD python -u /handler.py
