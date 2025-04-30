@@ -2,4 +2,4 @@ requests
 fastapi
 uvicorn
 python-multipart
-runpod
+runpod~=1.7.9
