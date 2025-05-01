@@ -10,10 +10,10 @@ B2_APPLICATION_KEY_ID = os.getenv("B2_APPLICATION_KEY_ID")
 B2_APPLICATION_KEY = os.getenv("B2_APPLICATION_KEY")
 B2_BUCKET_NAME = os.getenv("B2_BUCKET_NAME")
 
-# info = b2.InMemoryAccountInfo()
-# b2_api = b2.B2Api(info)
-# b2_api.authorize_account("production", B2_APPLICATION_KEY_ID, B2_APPLICATION_KEY)
-# bucket = b2_api.get_bucket_by_name(B2_BUCKET_NAME)
+info = b2.InMemoryAccountInfo()
+b2_api = b2.B2Api(info)
+b2_api.authorize_account("production", B2_APPLICATION_KEY_ID, B2_APPLICATION_KEY)
+bucket = b2_api.get_bucket_by_name(B2_BUCKET_NAME)
 
 
 def save_base64_file(base64_string, extension):
@@ -63,22 +63,15 @@ def handler(job):
         video_path = save_base64_file(video_b64, video_ext)
 
         # Upload to B2
-        # image_b2_url = upload_to_b2(image_path, user_id, "image")
-        # video_b2_url = upload_to_b2(video_path, user_id, "video")
+        image_b2_url = upload_to_b2(image_path, user_id, "image")
+        video_b2_url = upload_to_b2(video_path, user_id, "video")
 
         return {
-            "user_id": B2_APPLICATION_KEY_ID,
-            "prompt_used": B2_APPLICATION_KEY,
-            "image_b2_url": B2_BUCKET_NAME,
-            "video_b2_url": image_path,
+            "user_id": user_id,
+            "prompt_used": prompt,
+            "image_b2_url": image_b2_url,
+            "video_b2_url": video_b2_url,
         }
-
-        # return {
-        #     "user_id": user_id,
-        #     "prompt_used": prompt,
-        #     "image_b2_url": image_b2_url,
-        #     "video_b2_url": video_b2_url,
-        # }
 
     except Exception as e:
         return {"error": str(e)}
