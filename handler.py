@@ -7,7 +7,7 @@ from pathlib import Path
 
 # --- B2 Setup ---
 B2_APPLICATION_KEY_ID = os.getenv("B2_APPLICATION_KEY_ID")
-B2_APPLICATION_KEY = os.getenv("B2_APP_KEY")
+B2_APPLICATION_KEY = os.getenv("B2_APPLICATION_KEY")
 B2_BUCKET_NAME = os.getenv("B2_BUCKET_NAME")
 
 # info = b2.InMemoryAccountInfo()
