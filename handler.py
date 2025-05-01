@@ -44,7 +44,7 @@ def handler(job):
     prompt = job_input.get("prompt", "")
     image_ext = job_input.get("image_ext", "png")
     video_ext = job_input.get("video_ext", "mp4")
-    user_id = f"test_{job_input.get("user_id")}"
+    user_id = job_input.get("user_id")
 
     if not user_id:
         return {"error": "Missing required field: user_id"}
