@@ -3,3 +3,4 @@ fastapi
 uvicorn
 python-multipart
 runpod~=1.7.9
+b2sdk
