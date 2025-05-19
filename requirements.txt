@@ -1,7 +1,6 @@
+requests
+fastapi
+uvicorn
+python-multipart
 runpod~=1.7.9
-diffusers 
-transformers 
-accelerate 
-torch 
-safetensors 
-dotenv 
+b2sdk

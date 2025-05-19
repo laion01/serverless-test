@@ -4,101 +4,73 @@ import uuid
 import base64
 import b2sdk.v2 as b2
 from pathlib import Path
-import os
-from time import time
-from PIL import Image
-import torch
-from diffusers import DiffusionPipeline
-from typing import Tuple
-from datetime import datetime
 
-default_negative = ""
-style_list = [
-    {
-        "name": "3D Model",
-        "prompt": "{prompt}, centered, full view, isolated on white background, no cropping, product render style",
-        "negative_prompt": "",
-    },
-]
+# --- B2 Setup ---
+B2_APPLICATION_KEY_ID = os.getenv("B2_APPLICATION_KEY_ID")
+B2_APPLICATION_KEY = os.getenv("B2_APPLICATION_KEY")
+B2_BUCKET_NAME = os.getenv("B2_BUCKET_NAME")
 
-styles = {k["name"]: (k["prompt"], k["negative_prompt"]) for k in style_list}
-STYLE_NAMES = list(styles.keys())
-DEFAULT_STYLE_NAME = "3D Model"
+info = b2.InMemoryAccountInfo()
+b2_api = b2.B2Api(info)
+b2_api.authorize_account("production", B2_APPLICATION_KEY_ID, B2_APPLICATION_KEY)
+bucket = b2_api.get_bucket_by_name(B2_BUCKET_NAME)
 
-def apply_style(style_name: str, positive: str, negative: str = "") -> Tuple[str, str]:
-    p, n = styles.get(style_name, styles[DEFAULT_STYLE_NAME])
-    
-    if not negative:
-        negative = ""
-    p = p.replace("{prompt}", positive)
-    return p, n + negative
 
-USE_TORCH_COMPILE = os.getenv("USE_TORCH_COMPILE", "0") == "1"
+def save_base64_file(base64_string, extension):
+    filename = f"/tmp/{uuid.uuid4()}.{extension}"
+    try:
+        with open(filename, "wb") as f:
+            f.write(base64.b64decode(base64_string))
+        return filename
+    except Exception as e:
+        raise Exception(f"Failed to save file: {e}")
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-NUM_IMAGES_PER_PROMPT = 1
+def upload_to_b2(local_path, user_id, file_type):
+    file_name = f"{user_id}/media/{Path(local_path).name}"
+    try:
+        with open(local_path, "rb") as file:
+            bucket.upload_bytes(file.read(), file_name)
+        return f"b2://{B2_BUCKET_NAME}/{file_name}"
+    except Exception as e:
+        raise Exception(f"Failed to upload {file_type} to B2: {e}")
 
-if torch.cuda.is_available():
-    pipe = DiffusionPipeline.from_pretrained(
-        "SG161222/RealVisXL_V5.0",
-        torch_dtype=torch.float16,
-        use_safetensors=True,
-        add_watermarker=False,
-        variant="fp16"
-    )
-    pipe.to(f"cuda")
-    
-    if USE_TORCH_COMPILE:
-        pipe.unet = torch.compile(pipe.unet, mode="reduce-overhead", fullgraph=True)
-
-def generate_image(
-    prompt: str, seed: int = 0, n = 1
-):
-    prompt = prompt + ", centered, full view, 3D isolated on white background, no cropping, product render style"
-    negative_prompt = "blur,stratch"
-    generator = torch.Generator().manual_seed(0)
-
-    options = {
-        "prompt": prompt,
-        "negative_prompt": negative_prompt,
-        "width": 1024,
-        "height": 1024,
-        'seed': seed,
-        "guidance_scale": 20,
-        "num_inference_steps": 25,
-        "generator": generator,
-        "num_images_per_prompt": n,
-        "use_resolution_binning": True,
-        "output_type": "pil",
-    }
-
-    images = pipe(**options).images
-    saved_files = []
-    for i, item in enumerate(images):
-        filename = datetime.now().strftime("/tmp/RealVisXL_%Y%m%d_%H%M%S") + f"_base_{i+1}.png"
-        item.save(filename)
-        saved_files.append(filename)
-        print(f"Saved: {filename}")
-
-    if n==1:
-        return saved_files[0]
-    return saved_files
 
 def handler(job):
     job_input = job["input"]
 
+    image_b64 = job_input.get("image_base64")
+    video_b64 = job_input.get("video_base64")
     prompt = job_input.get("prompt", "")
+    image_ext = job_input.get("image_ext", "png")
+    video_ext = job_input.get("video_ext", "mp4")
+    user_id = job_input.get("user_id")
+
+    if not user_id:
+        return {"error": "Missing required field: user_id"}
+    if not image_b64 and not video_b64:
+        return {"error": "No file uploaded. Both image_base64 and video_base64 are missing."}
+    elif not image_b64:
+        return {"error": "No image uploaded. 'image_base64' is missing."}
+    elif not video_b64:
+        return {"error": "No video uploaded. 'video_base64' is missing."}
 
     image_path = video_path = None
 
     try:
-        imageFiles = generate_image(prompt, n=1)
+        # Save image and video to /tmp
+        image_path = save_base64_file(image_b64, image_ext)
+        video_path = save_base64_file(video_b64, video_ext)
 
-        
+        # Upload to B2
+        image_b2_url = upload_to_b2(image_path, user_id, "image")
+        video_b2_url = upload_to_b2(video_path, user_id, "video")
 
         return {
-            "video_b2_url": imageFiles,
+            "user_id": user_id,
+            "prompt_used": prompt,
+            "image_b2_url": image_b2_url,
+            "video_b2_url": video_b2_url,
         }
 
     except Exception as e:
