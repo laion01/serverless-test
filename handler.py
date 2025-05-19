@@ -6,14 +6,14 @@ import b2sdk.v2 as b2
 from pathlib import Path
 
 # --- B2 Setup ---
-B2_APPLICATION_KEY_ID = os.getenv("B2_APPLICATION_KEY_ID")
-B2_APPLICATION_KEY = os.getenv("B2_APPLICATION_KEY")
-B2_BUCKET_NAME = os.getenv("B2_BUCKET_NAME")
+# B2_APPLICATION_KEY_ID = os.getenv("B2_APPLICATION_KEY_ID")
+# B2_APPLICATION_KEY = os.getenv("B2_APPLICATION_KEY")
+# B2_BUCKET_NAME = os.getenv("B2_BUCKET_NAME")
 
-info = b2.InMemoryAccountInfo()
-b2_api = b2.B2Api(info)
-b2_api.authorize_account("production", B2_APPLICATION_KEY_ID, B2_APPLICATION_KEY)
-bucket = b2_api.get_bucket_by_name(B2_BUCKET_NAME)
+# info = b2.InMemoryAccountInfo()
+# b2_api = b2.B2Api(info)
+# b2_api.authorize_account("production", B2_APPLICATION_KEY_ID, B2_APPLICATION_KEY)
+# bucket = b2_api.get_bucket_by_name(B2_BUCKET_NAME)
 
 
 def save_base64_file(base64_string, extension):
