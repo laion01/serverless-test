@@ -1,15 +1,15 @@
-FROM runpod/base:0.6.3-cuda11.8.0
+FROM python:3.11-slim
 
-# Set python3.11 as the default python
-RUN ln -sf $(which python3.11) /usr/local/bin/python && \
-    ln -sf $(which python3.11) /usr/local/bin/python3
+WORKDIR /app
 
-# Install dependencies
-COPY requirements.txt /requirements.txt
-RUN uv pip install --upgrade -r /requirements.txt --no-cache-dir --system
+# Install git + pip dependencies
+RUN apt-get update && apt-get install -y git && pip install --no-cache-dir --upgrade pip
 
-# Add files
+COPY requirements.txt .
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+
 ADD handler.py .
 
-# Run the handler
 CMD python -u /handler.py
