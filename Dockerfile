@@ -1,25 +1,25 @@
-FROM runpod/base:0.6.3-cuda11.8.0
+FROM python:3.11.12-slim
 
-# Install Python 3.11 and pip
-RUN apt-get update && \
-    apt-get install -y software-properties-common && \
-    add-apt-repository ppa:deadsnakes/ppa && \
-    apt-get update && \
-    apt-get install -y python3.11 python3.11-distutils curl && \
-    curl -sS https://bootstrap.pypa.io/get-pip.py | python3.11
+# System updates and essential build tools
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    git \
+    curl \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# Set python3.11 as default
-RUN ln -sf $(which python3.11) /usr/local/bin/python && \
-    ln -sf $(which python3.11) /usr/local/bin/python3 && \
-    ln -sf /usr/local/bin/pip3 /usr/local/bin/pip
+# Set working directory
+WORKDIR /app
+
+# Copy requirements
+COPY requirements.txt .
 
 # Install Python dependencies
-COPY requirements.txt /requirements.txt
-RUN pip install --upgrade pip && \
-    pip install -r /requirements.txt --no-cache-dir
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-# Copy your handler code
+# Add files
 ADD handler.py .
 
 # Run the handler
-CMD ["python", "-u", "/handler.py"]
+CMD python -u /handler.py
