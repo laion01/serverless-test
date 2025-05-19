@@ -14,4 +14,4 @@ RUN apt-get update && apt-get install -y git \
  ADD handler.py .
 
  # Run the handler
- CMD python -u /handler.py
+ CMD python -u handler.py
