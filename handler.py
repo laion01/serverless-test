@@ -12,7 +12,7 @@ from diffusers import DiffusionPipeline
 from typing import Tuple
 from datetime import datetime
 
-default_negative = os.getenv("default_negative","")
+default_negative = ""
 style_list = [
     {
         "name": "3D Model",
