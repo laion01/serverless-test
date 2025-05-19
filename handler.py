@@ -39,38 +39,14 @@ def upload_to_b2(local_path, user_id, file_type):
 def handler(job):
     job_input = job["input"]
 
-    image_b64 = job_input.get("image_base64")
-    video_b64 = job_input.get("video_base64")
     prompt = job_input.get("prompt", "")
-    image_ext = job_input.get("image_ext", "png")
-    video_ext = job_input.get("video_ext", "mp4")
-    user_id = job_input.get("user_id")
-
-    if not user_id:
-        return {"error": "Missing required field: user_id"}
-    if not image_b64 and not video_b64:
-        return {"error": "No file uploaded. Both image_base64 and video_base64 are missing."}
-    elif not image_b64:
-        return {"error": "No image uploaded. 'image_base64' is missing."}
-    elif not video_b64:
-        return {"error": "No video uploaded. 'video_base64' is missing."}
 
     image_path = video_path = None
 
     try:
-        # Save image and video to /tmp
-        image_path = save_base64_file(image_b64, image_ext)
-        video_path = save_base64_file(video_b64, video_ext)
-
-        # Upload to B2
-        image_b2_url = upload_to_b2(image_path, user_id, "image")
-        video_b2_url = upload_to_b2(video_path, user_id, "video")
 
         return {
-            "user_id": user_id,
-            "prompt_used": prompt,
-            "image_b2_url": image_b2_url,
-            "video_b2_url": video_b2_url,
+            "prompt": prompt,
         }
 
     except Exception as e:
