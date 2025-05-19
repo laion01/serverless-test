@@ -4,3 +4,8 @@ uvicorn
 python-multipart
 runpod~=1.7.9
 b2sdk
+diffusers 
+transformers 
+accelerate 
+torch 
+safetensors 
