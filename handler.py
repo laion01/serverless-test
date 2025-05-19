@@ -60,6 +60,7 @@ def save_image(img, output_path):
 def generate_image(
     prompt: str, seed: int = 0, n = 1
 ):
+    print("---------------- generating images. ----------------")
     prompt = prompt + ", centered, full view, 3D isolated on white background, no cropping, product render style"
     negative_prompt = "blur,stratch"
     generator = torch.Generator().manual_seed(0)
@@ -81,7 +82,7 @@ def generate_image(
     images = pipe(**options).images
     saved_files = []
     for i, item in enumerate(images):
-        filename = datetime.now().strftime("/workspace/james/images/RealVisXL_%Y%m%d_%H%M%S") + f"_base_{i+1}.png"
+        filename = datetime.now().strftime("/RealVisXL_%Y%m%d_%H%M%S") + f"_base_{i+1}.png"
         item.save(filename)
         saved_files.append(filename)
         print(f"Saved: {filename}")
@@ -90,12 +91,6 @@ def generate_image(
         return saved_files[0]
     return saved_files
 
-if __name__ == "__main__":
-    t1 = time()
-    i = generate_image("Coffee table with a pile of magazines on top, centered, full view, isolated on white background, no cropping, product render style")
-    # i = generate_image("airplane hangar building, centered, full view, isolated on white background, no cropping, product render style, outside view")
-
-    print(f"{time() - t1} seconds")
     
 # --- B2 Setup ---
 # B2_APPLICATION_KEY_ID = os.getenv("B2_APPLICATION_KEY_ID")
@@ -138,7 +133,7 @@ def handler(job):
     try:
 
         return {
-            "prompt": prompt,
+            "prompt": prompt + "return ing",
             "imageFile": images
         }
 
