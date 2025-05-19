@@ -6,8 +6,9 @@ RUN ln -sf $(which python3.11) /usr/local/bin/python && \
 
 # Install dependencies
 COPY requirements.txt /requirements.txt
-RUN uv pip install --no-cache-dir hf_transfer
 RUN uv pip install --upgrade -r /requirements.txt --no-cache-dir --system
+RUN uv pip install --no-cache-dir hf_transfer --system
+
 
 # Add files
 ADD handler.py .
