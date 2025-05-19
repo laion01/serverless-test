@@ -16,7 +16,7 @@ RUN ln -sf $(which python3.11) /usr/local/bin/python && \
 # Install Python dependencies
 COPY requirements.txt /requirements.txt
 RUN pip install --upgrade pip && \
-    pip install --upgrade -r /requirements.txt --no-cache-dir
+    pip install -r /requirements.txt --no-cache-dir
 
 # Copy your handler code
 ADD handler.py .
