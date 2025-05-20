@@ -52,22 +52,19 @@ def handler(job):
 
     prompt = job_input.get("prompt", "")
     genOpenAI = job_input.get("genOpenAI", False)
-    nCount = job_input.get("nCount", 1)
+    rCount = job_input.get("rCount", 1)
+    oCount = job_input.get("oCount", 1)
 
-    print(f"----------========================= genOpenAI {genOpenAI} =========================----------")
-    print(f"----------========================= nCount {nCount} =========================----------")
-
-    image_path = video_path = None
-    r_images = realvis_img(prompt, nCount)
+    if rCount > 0:
+        r_images = realvis_img(prompt, nCount)
     o_images = []
-    if genOpenAI:
+    if oCount > 0:
         o_images = openai_img(prompt, nCount)
 
     try:
         return {
             "prompt": prompt + "return ing",
             "genOpenAI": genOpenAI,
-            "nCount": nCount,
             "openAI_Images": o_images,
             "realVis_Images": r_images
         }
@@ -77,12 +74,7 @@ def handler(job):
 
     finally:
         # Safe cleanup
-        for file_path in [image_path, video_path]:
-            if file_path and os.path.exists(file_path):
-                try:
-                    os.remove(file_path)
-                except Exception as cleanup_error:
-                    print(f"Failed to delete {file_path}: {cleanup_error}")
+        
 
 
 runpod.serverless.start({"handler": handler})
