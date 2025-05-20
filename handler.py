@@ -54,6 +54,9 @@ def handler(job):
     genOpenAI = job_input.get("genOpenAI", False)
     nCount = job_input.get("nCount", 1)
 
+    print(f"----------========================= genOpenAI {genOpenAI} =========================----------")
+    print(f"----------========================= nCount {nCount} =========================----------")
+
     image_path = video_path = None
     r_images = realvis_img(prompt, nCount)
     o_images = []
