@@ -12,85 +12,9 @@ from diffusers import DiffusionPipeline
 from typing import Tuple
 from datetime import datetime
 
-default_negative = os.getenv("default_negative","")
-
-style_list = [
-    {
-        "name": "3D Model",
-        "prompt": "{prompt}, centered, full view, isolated on white background, no cropping, product render style",
-        "negative_prompt": "",
-    },
-]
-
-styles = {k["name"]: (k["prompt"], k["negative_prompt"]) for k in style_list}
-STYLE_NAMES = list(styles.keys())
-DEFAULT_STYLE_NAME = "3D Model"
-
-def apply_style(style_name: str, positive: str, negative: str = "") -> Tuple[str, str]:
-    p, n = styles.get(style_name, styles[DEFAULT_STYLE_NAME])
-    
-    if not negative:
-        negative = ""
-    p = p.replace("{prompt}", positive)
-    return p, n + negative
-
-USE_TORCH_COMPILE = os.getenv("USE_TORCH_COMPILE", "0") == "1"
-
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-NUM_IMAGES_PER_PROMPT = 1
-
-if torch.cuda.is_available():
-    pipe = DiffusionPipeline.from_pretrained(
-        "SG161222/RealVisXL_V5.0",
-        torch_dtype=torch.float16,
-        use_safetensors=True,
-        add_watermarker=False,
-        variant="fp16"
-    )
-    pipe.to("cuda")
-    
-    if USE_TORCH_COMPILE:
-        pipe.unet = torch.compile(pipe.unet, mode="reduce-overhead", fullgraph=True)
-
-def save_image(img, output_path):
-    img.save(output_path)
-    return output_path
-
-def generate_image(
-    prompt: str, seed: int = 0, n = 1
-):
-    print("---------------- generating images. ----------------")
-    prompt = prompt + ", centered, full view, 3D isolated on white background, no cropping, product render style"
-    negative_prompt = "blur,stratch"
-    generator = torch.Generator().manual_seed(0)
-
-    options = {
-        "prompt": prompt,
-        "negative_prompt": negative_prompt,
-        "width": 1024,
-        "height": 1024,
-        'seed': seed,
-        "guidance_scale": 20,
-        "num_inference_steps": 25,
-        "generator": generator,
-        "num_images_per_prompt": n,
-        "use_resolution_binning": True,
-        "output_type": "pil",
-    }
-
-    images = pipe(**options).images
-    saved_files = []
-    for i, item in enumerate(images):
-        filename = datetime.now().strftime("/RealVisXL_%Y%m%d_%H%M%S") + f"_base_{i+1}.png"
-        item.save(filename)
-        saved_files.append(filename)
-        print(f"Saved: {filename}")
-
-    if n==1:
-        return saved_files[0]
-    return saved_files
-
+from openai_image import generate_image as openai_img
+# from image_openai_multicheck import generate_image as openai_multi_img
+from realvisxl_image import generate_image as realvis_img
     
 # --- B2 Setup ---
 # B2_APPLICATION_KEY_ID = os.getenv("B2_APPLICATION_KEY_ID")
@@ -127,14 +51,21 @@ def handler(job):
     job_input = job["input"]
 
     prompt = job_input.get("prompt", "")
+    genOpenAI = job_input.get("genOpenAI", False)
+    nCount = job_input.get("nCount", 1)
 
     image_path = video_path = None
-    images = generate_image(prompt)
+    r_images = realvis_img(prompt, nCount)
+    o_images = []
+    if genOpenAI:
+        o_images = openai_img(prompt, nCount)
+
     try:
 
         return {
             "prompt": prompt + "return ing",
-            "imageFile": images
+            "OpenAI_Images": o_images,
+            ""
         }
 
     except Exception as e:

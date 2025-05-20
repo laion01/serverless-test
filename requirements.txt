@@ -10,3 +10,5 @@ accelerate
 torch 
 safetensors 
 hf_transfer
+dotenv
+openai
