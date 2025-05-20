@@ -56,10 +56,10 @@ def handler(job):
 
     r_images = []
     if rCount > 0:
-        r_images = realvis_img(prompt, nCount)
+        r_images = realvis_img(prompt, rCount)
     o_images = []
     if oCount > 0:
-        o_images = openai_img(prompt, nCount)
+        o_images = openai_img(prompt, oCount)
 
     try:
         return {
