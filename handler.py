@@ -63,6 +63,8 @@ def handler(job):
     try:
         return {
             "prompt": prompt + "return ing",
+            "genOpenAI": genOpenAI,
+            "nCount": nCount,
             "openAI_Images": o_images,
             "realVis_Images": r_images
         }
