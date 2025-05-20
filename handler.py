@@ -51,10 +51,10 @@ def handler(job):
     job_input = job["input"]
 
     prompt = job_input.get("prompt", "")
-    genOpenAI = job_input.get("genOpenAI", False)
     rCount = job_input.get("rCount", 1)
     oCount = job_input.get("oCount", 1)
 
+    r_images = []
     if rCount > 0:
         r_images = realvis_img(prompt, nCount)
     o_images = []
@@ -64,7 +64,6 @@ def handler(job):
     try:
         return {
             "prompt": prompt + "return ing",
-            "genOpenAI": genOpenAI,
             "openAI_Images": o_images,
             "realVis_Images": r_images
         }
@@ -74,6 +73,7 @@ def handler(job):
 
     finally:
         # Safe cleanup
+        print ("Image generation success")
         
 
 
