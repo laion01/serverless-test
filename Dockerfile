@@ -11,8 +11,8 @@ RUN uv pip install --no-cache-dir hf_transfer --system
 
 
 # Add files
-ADD openai_image.py .
-ADD realvisxl_image.py .
+COPY openai_image.py /openai_image.py
+COPY realvisxl_image.py /realvisxl_image.py
 ADD handler.py .
 
 # Run the handler
