@@ -61,11 +61,10 @@ def handler(job):
         o_images = openai_img(prompt, nCount)
 
     try:
-
         return {
             "prompt": prompt + "return ing",
-            "OpenAI_Images": o_images,
-            ""
+            "openAI_Images": o_images,
+            "realVis_Images": r_images
         }
 
     except Exception as e:
