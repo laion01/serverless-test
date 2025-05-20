@@ -5,6 +5,8 @@ import torch
 from diffusers import DiffusionPipeline
 from typing import Tuple
 from datetime import datetime
+import base64
+from io import BytesIO
 
 default_negative = os.getenv("default_negative","")
 import argparse

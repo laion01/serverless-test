@@ -4,6 +4,8 @@ from datetime import datetime
 import os
 from dotenv import load_dotenv
 
+import base64
+from io import BytesIO
 
 # Load from .env file in current directory
 load_dotenv()
